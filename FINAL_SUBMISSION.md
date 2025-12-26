@@ -10,10 +10,10 @@
 | Metric | Value |
 |--------|-------|
 | **Package** | `@verified-network/verified-custody@0.4.9` |
-| **Total Vulnerabilities** | 9 |
+| **Total Vulnerabilities** | 11 |
 | **Critical** | 2 |
 | **High** | 3 |
-| **Medium** | 4 |
+| **Medium** | 6 |
 | **Attack Time** | < 2 seconds |
 | **Impact** | Full wallet takeover |
 
@@ -347,6 +347,46 @@ privateKey = null;  // Original string still in memory!
 // Memory dump attacks possible
 ```
 
+### MEDIUM #5: Deterministic Vault IDs
+
+```javascript
+// Vault IDs are derived deterministically from email
+// No per-user salt or randomness
+
+function deriveVaultId(email) {
+    return hashTheString(email);  // Same email = same vaultId globally
+}
+
+// Test results:
+// alice@example.com -> 0xff8d9819fc0e12bf0d24892e4598...
+// alice@example.com -> 0xff8d9819fc0e12bf0d24892e4598... (IDENTICAL!)
+
+// Impact:
+// - Attacker can enumerate known email addresses
+// - Target specific high-value users
+// - Cross-reference with other data breaches
+// - No per-session or per-device uniqueness
+```
+
+### MEDIUM #6: Hashed PIN Transmission in Co-Signer Flow
+
+```javascript
+// From SDK type definitions:
+// sendCoSignerInvitation(channel, cosigerId, creatorId, hashedCreatorPin)
+
+// The hashedCreatorPin is transmitted to co-signers during:
+// - Invitation: sendCoSignerInvitation()
+// - Confirmation: sendCreatorConfirmation()
+// - Signing: sendCreatorSigned()
+// - Completion: sendCreatorCompleted()
+
+// Impact:
+// - PIN hash exposed to co-signers and backend
+// - If combined with encrypted PK: brute-force attack is feasible
+// - Increases attack surface for social engineering
+// - Hash may be logged/stored on backend systems
+```
+
 ---
 
 ## Security Controls Working Correctly
@@ -369,7 +409,8 @@ privateKey = null;  // Original string still in memory!
 | `poc-pin-bruteforce.js` | CRITICAL #1 - PIN brute-force PoC |
 | `poc-raw-pk-storage.js` | CRITICAL #2 - Raw PK storage PoC |
 | `poc-attack-chain.js` | Combined attack chain PoC |
-| `comprehensive-vuln-scanner.js` | Full 9-test vulnerability scanner |
+| `poc-additional-tests.js` | Vault ID enumeration, PIN transmission tests |
+| `comprehensive-vuln-scanner.js` | Full vulnerability scanner |
 | `vulnerability-scan-results.json` | Automated scan results |
 
 ---
