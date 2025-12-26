@@ -1,0 +1,19 @@
+{
+  "name": "verified-bounty",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@verified-network/verified-custody": "^0.4.9",
+    "ethers": "^6.16.0",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3"
+  }
+}
